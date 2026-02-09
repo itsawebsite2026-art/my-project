@@ -1,0 +1,20 @@
+{
+  "short_name": "WorkSpace",
+  "name": "WorkSpace Dashboard System",
+  "icons": [
+    {
+      "src": "https://ui-avatars.com/api/?name=W&background=6366f1&color=fff&size=192",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=W&background=6366f1&color=fff&size=512",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#f3f4f6",
+  "display": "standalone",
+  "theme_color": "#6366f1"
+}
