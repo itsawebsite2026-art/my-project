@@ -5,123 +5,197 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WorkSpace Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; }
-        .sidebar-active { background: #4f46e5; color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4); }
+        body { font-family: 'Sarabun', sans-serif; background-color: #F2F4F7; }
+        .sidebar-icon { @apply w-12 h-12 flex items-center justify-center rounded-2xl text-gray-400 hover:bg-white hover:text-indigo-600 hover:shadow-md transition-all cursor-pointer mb-6; }
+        .sidebar-active { @apply bg-white text-indigo-600 shadow-lg shadow-indigo-100; }
+        .card { @apply bg-white p-5 rounded-[32px] shadow-sm hover:shadow-md transition-all cursor-pointer mb-5 border border-gray-50; }
+        .tag { @apply px-3 py-1 rounded-lg text-xs font-bold; }
+        /* ซ่อน Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-slate-50 h-screen flex overflow-hidden">
+<body class="flex h-screen overflow-hidden">
 
-    <aside class="w-20 md:w-64 bg-slate-900 text-white flex flex-col transition-all duration-300">
-        <div class="h-20 flex items-center justify-center border-b border-slate-800">
-            <div class="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
-                <i class="fa-solid fa-layer-group text-xl"></i>
-            </div>
-            <span class="ml-3 font-bold text-xl hidden md:block">WorkSpace</span>
+    <aside class="w-24 py-8 flex flex-col items-center">
+        <div class="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-10">
+            <i class="fa-regular fa-image text-green-500 text-xl"></i>
         </div>
-        <nav class="flex-1 p-4 space-y-3">
-            <div class="sidebar-active flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer">
-                <i class="fa-solid fa-plus-circle text-lg"></i>
-                <span class="font-medium hidden md:block">บันทึกงานใหม่</span>
-            </div>
-            <div class="flex items-center gap-4 px-4 py-3 text-slate-500 hover:bg-slate-800 rounded-xl cursor-not-allowed">
-                <i class="fa-solid fa-chart-line text-lg"></i>
-                <span class="hidden md:block text-sm">Dashboard</span>
-            </div>
+        
+        <nav class="flex-1">
+            <div class="sidebar-icon"><i class="fa-solid fa-border-all text-xl"></i></div>
+            <div class="sidebar-icon sidebar-active"><i class="fa-solid fa-briefcase text-xl"></i></div>
+            <div class="sidebar-icon"><i class="fa-solid fa-list-check text-xl"></i></div>
+            <div class="sidebar-icon"><i class="fa-regular fa-calendar text-xl"></i></div>
+            <div class="sidebar-icon"><i class="fa-solid fa-chart-pie text-xl"></i></div>
         </nav>
+
+        <div class="mt-auto">
+             <div class="sidebar-icon"><i class="fa-solid fa-gear text-xl"></i></div>
+             <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" class="w-10 h-10 rounded-full border-2 border-white shadow-md">
+        </div>
     </aside>
 
-    <main class="flex-1 flex flex-col relative overflow-hidden">
-        <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8">
-            <h2 class="text-xl font-bold text-slate-800">เพิ่มรายการโปรเจกต์ใหม่</h2>
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden border-2 border-indigo-100">
-                    <img src="https://ui-avatars.com/api/?name=User&background=6366f1&color=fff" alt="User">
+    <main class="flex-1 flex flex-col pr-6 py-6">
+        
+        <header class="h-20 flex items-center justify-between mb-4">
+            <div class="relative w-96">
+                <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" placeholder="ค้นหาโปรเจกต์..." class="w-full pl-12 pr-6 py-4 bg-white rounded-[20px] shadow-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <button class="w-12 h-12 bg-white rounded-full shadow-sm text-gray-500 hover:text-indigo-600"><i class="fa-regular fa-bell text-xl"></i></button>
+                <div class="flex items-center gap-3 bg-white pl-2 pr-4 py-2 rounded-full shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" class="w-8 h-8 rounded-full">
+                    <span class="font-bold text-gray-700 text-sm">Admin</span>
                 </div>
             </div>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-8">
-            <div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-sm border border-slate-100 p-10">
-                <form id="taskForm" onsubmit="submitData(event)" class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">ชื่อโปรเจกต์ / งาน</label>
-                        <input type="text" id="title" required placeholder="ระบุชื่องาน..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+        <div class="flex-1 overflow-x-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 min-w-[1000px] h-full">
+                
+                <div class="flex flex-col">
+                    <div class="flex justify-between items-center mb-6 px-2">
+                        <h3 class="font-bold text-gray-800 text-lg">กำลังทำ <span class="text-gray-400 text-sm ml-2">(02)</span></h3>
+                        <button class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-ellipsis"></i></button>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">ผู้รับผิดชอบ</label>
-                            <input type="text" id="owner" placeholder="ชื่อเล่น/ชื่อจริง" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                    <div class="card group">
+                        <div class="h-32 rounded-2xl bg-indigo-900 mb-4 overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute top-3 right-3 w-8 h-8 bg-white/20 backdrop-blur rounded-lg flex items-center justify-center text-white"><i class="fa-regular fa-image"></i></div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">สถานะงาน</label>
-                            <select id="status" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all cursor-pointer">
-                                <option value="รอดำเนินการ">รอดำเนินการ</option>
-                                <option value="กำลังทำ">กำลังทำ</option>
-                                <option value="เสร็จสิ้น">เสร็จสิ้น</option>
-                            </select>
+                        <div class="flex justify-between mb-2">
+                            <h4 class="font-bold text-xl text-gray-800">Slack Rebrand</h4>
+                            <i class="fa-solid fa-ellipsis text-gray-300"></i>
+                        </div>
+                        <p class="text-gray-400 text-xs mb-4">โครงการนี้ต้องการอัตลักษณ์แบรนด์ใหม่...</p>
+                        <div class="flex gap-2 mb-4">
+                            <span class="tag bg-slate-100 text-slate-600">แอป IOS</span>
+                            <span class="tag bg-slate-100 text-slate-600">แอนดรอยด์</span>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-100 pt-3">
+                            <div class="flex gap-3 text-gray-400 text-xs">
+                                <span><i class="fa-solid fa-paperclip mr-1"></i> 3</span>
+                                <span><i class="fa-regular fa-message mr-1"></i> 2</span>
+                            </div>
+                            <div class="flex -space-x-2">
+                                <img src="https://i.pravatar.cc/150?u=1" class="w-6 h-6 rounded-full border border-white">
+                                <img src="https://i.pravatar.cc/150?u=2" class="w-6 h-6 rounded-full border border-white">
+                                <div class="w-6 h-6 rounded-full bg-slate-100 border border-white flex items-center justify-center text-[10px] text-gray-500">+</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">รายละเอียดงาน (Scope)</label>
-                        <textarea id="detail" rows="4" placeholder="รายละเอียดเบื้องต้น..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"></textarea>
+                    <div class="card">
+                         <div class="flex justify-between mb-2">
+                            <h4 class="font-bold text-xl text-gray-800">Google UX</h4>
+                            <i class="fa-solid fa-ellipsis text-gray-300"></i>
+                        </div>
+                        <p class="text-gray-400 text-xs mb-4">วิจัยพฤติกรรมผู้ใช้งานใหม่...</p>
+                        <div class="flex gap-2 mb-4">
+                            <span class="tag bg-orange-100 text-orange-600">แบรนด์ดิ้ง</span>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-100 pt-3">
+                             <div class="flex gap-3 text-gray-400 text-xs">
+                                <span><i class="fa-solid fa-paperclip mr-1"></i> 1</span>
+                                <span><i class="fa-regular fa-message mr-1"></i> 5</span>
+                            </div>
+                            <div class="flex -space-x-2">
+                                <img src="https://i.pravatar.cc/150?u=3" class="w-6 h-6 rounded-full border border-white">
+                            </div>
+                        </div>
                     </div>
 
-                    <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-indigo-100 transition-all active:scale-[0.98]">
-                        <i class="fa-solid fa-cloud-arrow-up mr-2"></i> บันทึกข้อมูลลงชีต
-                    </button>
-                </form>
+                </div>
+
+                <div class="flex flex-col">
+                    <div class="flex justify-between items-center mb-6 px-2">
+                        <h3 class="font-bold text-gray-800 text-lg">ดำเนินการอยู่ <span class="text-gray-400 text-sm ml-2">(02)</span></h3>
+                        <button class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-ellipsis"></i></button>
+                    </div>
+
+                    <div class="card">
+                        <div class="flex justify-between mb-2">
+                            <h4 class="font-bold text-xl text-gray-800">Twitter</h4>
+                            <i class="fa-solid fa-ellipsis text-gray-300"></i>
+                        </div>
+                        <p class="text-gray-400 text-xs mb-4">ออกแบบ UI หน้า Feed ใหม่...</p>
+                        <div class="flex gap-2 mb-4">
+                            <span class="tag bg-blue-50 text-blue-500">เว็บไซต์</span>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-100 pt-3">
+                             <div class="flex gap-3 text-gray-400 text-xs">
+                                <span><i class="fa-solid fa-paperclip mr-1"></i> 2</span>
+                                <span><i class="fa-regular fa-message mr-1"></i> 8</span>
+                            </div>
+                            <div class="flex -space-x-2">
+                                <img src="https://i.pravatar.cc/150?u=4" class="w-6 h-6 rounded-full border border-white">
+                                <img src="https://i.pravatar.cc/150?u=5" class="w-6 h-6 rounded-full border border-white">
+                            </div>
+                        </div>
+                    </div>
+
+                     <div class="card">
+                        <div class="flex justify-between mb-2">
+                            <h4 class="font-bold text-xl text-gray-800">Samsung IOT</h4>
+                            <i class="fa-solid fa-ellipsis text-gray-300"></i>
+                        </div>
+                        <div class="flex gap-2 mb-4">
+                            <span class="tag bg-purple-50 text-purple-600">IOT</span>
+                            <span class="tag bg-gray-100 text-gray-600">AR</span>
+                        </div>
+                         <div class="flex justify-between items-center border-t border-gray-100 pt-3">
+                             <div class="flex gap-3 text-gray-400 text-xs">
+                                <span><i class="fa-solid fa-paperclip mr-1"></i> 0</span>
+                                <span><i class="fa-regular fa-message mr-1"></i> 1</span>
+                            </div>
+                             <div class="flex -space-x-2">
+                                <img src="https://i.pravatar.cc/150?u=6" class="w-6 h-6 rounded-full border border-white">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col">
+                    <div class="flex justify-between items-center mb-6 px-2">
+                        <h3 class="font-bold text-gray-800 text-lg">เสร็จสิ้น <span class="text-gray-400 text-sm ml-2">(01)</span></h3>
+                        <button class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-ellipsis"></i></button>
+                    </div>
+
+                    <div class="card">
+                        <div class="flex justify-between mb-2">
+                            <h4 class="font-bold text-xl text-gray-800">Tesla Auto</h4>
+                            <i class="fa-solid fa-ellipsis text-gray-300"></i>
+                        </div>
+                        <p class="text-gray-400 text-xs mb-4">พัฒนาระบบนำทาง...</p>
+                        <div class="flex gap-2 mb-4">
+                            <span class="tag bg-green-50 text-green-600">เสร็จสมบูรณ์</span>
+                        </div>
+                         <div class="flex justify-between items-center border-t border-gray-100 pt-3">
+                             <div class="flex gap-3 text-gray-400 text-xs">
+                                <span><i class="fa-solid fa-paperclip mr-1"></i> 5</span>
+                            </div>
+                             <div class="flex -space-x-2">
+                                <img src="https://i.pravatar.cc/150?u=7" class="w-6 h-6 rounded-full border border-white">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <div id="toast" class="fixed bottom-10 right-10 bg-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl hidden items-center gap-3 animate-bounce">
-            <i class="fa-solid fa-circle-check text-xl"></i>
-            <span class="font-bold">บันทึกสำเร็จ! ข้อมูลอัปเดตแล้ว</span>
-        </div>
+        <button onclick="alert('ฟีเจอร์เพิ่มงานจะอยู่ที่นี่')" class="fixed bottom-10 right-10 w-16 h-16 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[20px] shadow-xl shadow-indigo-300 flex items-center justify-center transition-transform hover:scale-110 active:scale-95">
+            <i class="fa-solid fa-plus text-2xl"></i>
+        </button>
+
     </main>
-
-    <script>
-        function submitData(e) {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            // *** ใส่ URL ของ Google Apps Script ของคุณที่นี่ ***
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbwWBHTunYNJIlal0lfHBCfzMbPdL9PCGXkuKflJe-dx76u99znjL1JGS6Ns7cZQ2YK2/exec'; 
-
-            const data = {
-                title: document.getElementById('title').value,
-                detail: document.getElementById('detail').value,
-                status: document.getElementById('status').value,
-                owner: document.getElementById('owner').value
-            };
-
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> กำลังบันทึก...';
-
-            // ส่งข้อมูลไปที่ GAS
-            fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors', // สำคัญมากสำหรับการส่งข้ามเว็บ
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(() => {
-                const toast = document.getElementById('toast');
-                toast.classList.remove('hidden');
-                toast.classList.add('flex');
-                document.getElementById('taskForm').reset();
-                setTimeout(() => { toast.classList.add('hidden'); }, 3000);
-            })
-            .catch(err => alert('เกิดข้อผิดพลาด: ' + err))
-            .finally(() => {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-2"></i> บันทึกข้อมูลลงชีต';
-            });
-        }
-    </script>
 </body>
 </html>
