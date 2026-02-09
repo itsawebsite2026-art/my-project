@@ -1,201 +1,233 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WorkSpace Dashboard</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai+Looped:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ['"Noto Sans Thai Looped"', 'Inter', 'sans-serif'] },
+            colors: {
+              primary: '#6366F1', sidebar: '#F9FAFB', card: '#FFFFFF', bg: '#E5E7EB',
+              textMain: '#1F2937', textSub: '#9CA3AF',
+            },
+            boxShadow: {
+              'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+              'glow': '0 4px 14px 0 rgba(99, 102, 241, 0.39)',
+            }
+          }
+        }
+      }
+    </script>
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #F2F4F7; }
-        .sidebar-icon { @apply w-12 h-12 flex items-center justify-center rounded-2xl text-gray-400 hover:bg-white hover:text-indigo-600 hover:shadow-md transition-all cursor-pointer mb-6; }
-        .sidebar-active { @apply bg-white text-indigo-600 shadow-lg shadow-indigo-100; }
-        .card { @apply bg-white p-5 rounded-[32px] shadow-sm hover:shadow-md transition-all cursor-pointer mb-5 border border-gray-50; }
-        .tag { @apply px-3 py-1 rounded-lg text-xs font-bold; }
-        /* ซ่อน Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+      body { font-family: 'Noto Sans Thai Looped', 'Inter', sans-serif; }
+      .animate-fade-in-up { animation: fadeInUp 0.4s ease-out forwards; }
+      @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="bg-[#E0E5EC] text-slate-800 antialiased overflow-hidden h-screen flex items-center justify-center p-2 sm:p-4">
+    <div id="root" class="w-full h-full max-w-[1600px] max-h-[1000px]"></div>
 
-    <aside class="w-24 py-8 flex flex-col items-center">
-        <div class="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-10">
-            <i class="fa-regular fa-image text-green-500 text-xl"></i>
-        </div>
-        
-        <nav class="flex-1">
-            <div class="sidebar-icon"><i class="fa-solid fa-border-all text-xl"></i></div>
-            <div class="sidebar-icon sidebar-active"><i class="fa-solid fa-briefcase text-xl"></i></div>
-            <div class="sidebar-icon"><i class="fa-solid fa-list-check text-xl"></i></div>
-            <div class="sidebar-icon"><i class="fa-regular fa-calendar text-xl"></i></div>
-            <div class="sidebar-icon"><i class="fa-solid fa-chart-pie text-xl"></i></div>
-        </nav>
+    <script type="text/babel">
+        // 1. CONSTANTS & DATA
+        const MOCK_USERS = [
+            { id: '1', name: 'Alice', avatarUrl: 'https://i.pravatar.cc/150?u=a' },
+            { id: '2', name: 'Bob', avatarUrl: 'https://i.pravatar.cc/150?u=b' },
+            { id: '3', name: 'Charlie', avatarUrl: 'https://i.pravatar.cc/150?u=c' },
+        ];
+        const INITIAL_DATA = [
+            {
+                id: 'working', title: 'กำลังทำ', count: 2,
+                tasks: [
+                    { id: 't1', title: 'Slack Rebrand', description: 'ปรับปรุงโลโก้และสี', tags: ['Design'], attachmentsCount: 3, commentsCount: 2, members: [MOCK_USERS[0]], imageUrl: 'https://picsum.photos/400/200', status: 'Working' },
+                    { id: 't2', title: 'Google UX Research', description: 'วิจัยผู้ใช้กลุ่มใหม่', tags: ['Research'], attachmentsCount: 1, commentsCount: 5, members: [MOCK_USERS[1]], status: 'Working' }
+                ]
+            },
+            {
+                id: 'progress', title: 'ดำเนินการอยู่', count: 1,
+                tasks: [ { id: 't3', title: 'Twitter Feed', description: 'แก้บั๊กหน้าฟีด', tags: ['Dev'], attachmentsCount: 0, commentsCount: 1, members: [MOCK_USERS[2]], status: 'In Progress' } ]
+            },
+            {
+                id: 'completed', title: 'เสร็จสิ้น', count: 1,
+                tasks: [ { id: 't4', title: 'Tesla GPS', description: 'อัปเดตแผนที่', tags: ['Dev'], attachmentsCount: 8, commentsCount: 12, members: [MOCK_USERS[0]], status: 'Completed' } ]
+            }
+        ];
 
-        <div class="mt-auto">
-             <div class="sidebar-icon"><i class="fa-solid fa-gear text-xl"></i></div>
-             <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" class="w-10 h-10 rounded-full border-2 border-white shadow-md">
-        </div>
-    </aside>
+        // 2. COMPONENTS
+        // Icon Helper
+        const Icon = ({ name, ...props }) => {
+            const IconComponent = lucide.icons[name];
+            if (!IconComponent) return null;
+            return React.createElement('svg', {
+                ...props,
+                width: props.size || 24, height: props.size || 24,
+                fill: "none", stroke: "currentColor", strokeWidth: props.strokeWidth || 2,
+                strokeLinecap: "round", strokeLinejoin: "round", viewBox: "0 0 24 24",
+                dangerouslySetInnerHTML: { __html: IconComponent[2].map(c => `<${c[0]} ${Object.entries(c[1]).map(([k,v]) => `${k}="${v}"`).join(' ')} />`).join('') }
+            });
+        };
 
-    <main class="flex-1 flex flex-col pr-6 py-6">
-        
-        <header class="h-20 flex items-center justify-between mb-4">
-            <div class="relative w-96">
-                <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input type="text" placeholder="ค้นหาโปรเจกต์..." class="w-full pl-12 pr-6 py-4 bg-white rounded-[20px] shadow-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-100">
-            </div>
-            
-            <div class="flex items-center gap-6">
-                <button class="w-12 h-12 bg-white rounded-full shadow-sm text-gray-500 hover:text-indigo-600"><i class="fa-regular fa-bell text-xl"></i></button>
-                <div class="flex items-center gap-3 bg-white pl-2 pr-4 py-2 rounded-full shadow-sm">
-                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" class="w-8 h-8 rounded-full">
-                    <span class="font-bold text-gray-700 text-sm">Admin</span>
+        const Sidebar = ({ activeItem, onNavigate }) => {
+            const [isCalcExpanded, setIsCalcExpanded] = React.useState(false);
+            const menuItems = [
+                { icon: 'LayoutGrid', label: 'แดชบอร์ด' },
+                { icon: 'Briefcase', label: 'โปรเจกต์' },
+                { icon: 'ListTodo', label: 'งานของฉัน' },
+                { icon: 'Calculator', label: 'เครื่องคิดเลข', hasSub: true, subItems: [{ label: 'คำนวณราคา', value: 'คำนวณราคา' }, { label: 'คำนวณวัสดุ', value: 'คำนวณวัสดุ' }] },
+                { icon: 'PieChart', label: 'รายงาน' },
+                { icon: 'Settings', label: 'ตั้งค่า' },
+            ];
+
+            return (
+                <div className="w-20 md:w-24 h-full flex flex-col py-6 items-center bg-[#F3F4F6] border-r border-slate-200/50 z-50">
+                    <div className="mb-8 p-2 bg-white rounded-xl shadow-soft"><div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold">WS</div></div>
+                    <nav className="flex-1 space-y-3 w-full px-2 overflow-y-auto custom-scrollbar">
+                        {menuItems.map((item) => {
+                            const isSelected = activeItem === item.label || (item.hasSub && item.subItems?.some(s => s.value === activeItem));
+                            return (
+                                <div key={item.label} className="flex flex-col items-center gap-1">
+                                    <div onClick={() => item.hasSub ? setIsCalcExpanded(!isCalcExpanded) : onNavigate(item.label)} 
+                                         className={`p-3 rounded-xl cursor-pointer transition-all aspect-square flex items-center justify-center w-full ${isSelected ? 'text-primary bg-white shadow-soft' : 'text-slate-400 hover:bg-white/50'}`}>
+                                        <Icon name={item.icon} size={22} />
+                                    </div>
+                                    {item.hasSub && isCalcExpanded && (
+                                        <div className="flex flex-col gap-1 w-full animate-fade-in-up">
+                                            {item.subItems.map(sub => (
+                                                <div key={sub.value} onClick={() => onNavigate(sub.value)} className={`text-[10px] py-2 text-center rounded-lg cursor-pointer ${activeItem === sub.value ? 'bg-primary text-white shadow-glow' : 'bg-white/40 text-slate-500'}`}>{sub.label}</div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </nav>
+                </div>
+            );
+        };
+
+        const ProjectCard = ({ task }) => (
+            <div className="bg-white p-4 rounded-2xl shadow-soft hover:shadow-md transition-all cursor-pointer mb-4 border border-slate-50">
+                {task.imageUrl && (
+                    <div className="mb-3 rounded-xl overflow-hidden h-28 w-full relative group">
+                        <img src={task.imageUrl} className="w-full h-full object-cover" />
+                    </div>
+                )}
+                <div className="flex justify-between items-start mb-1">
+                    <h3 className="font-bold text-slate-800">{task.title}</h3>
+                    <Icon name="MoreHorizontal" size={18} className="text-slate-300" />
+                </div>
+                <p className="text-slate-500 text-xs mb-3 line-clamp-2">{task.description}</p>
+                <div className="flex items-center justify-between pt-2 border-t border-slate-50">
+                    <div className="flex gap-2 text-slate-400 text-xs">
+                        <span className="flex items-center gap-1"><Icon name="Paperclip" size={12} /> {task.attachmentsCount}</span>
+                    </div>
+                    <div className="flex -space-x-2">
+                        {task.members.map((m, i) => <img key={i} src={m.avatarUrl} className="w-5 h-5 rounded-full border border-white" />)}
+                    </div>
                 </div>
             </div>
-        </header>
+        );
 
-        <div class="flex-1 overflow-x-auto">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 min-w-[1000px] h-full">
-                
-                <div class="flex flex-col">
-                    <div class="flex justify-between items-center mb-6 px-2">
-                        <h3 class="font-bold text-gray-800 text-lg">กำลังทำ <span class="text-gray-400 text-sm ml-2">(02)</span></h3>
-                        <button class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-ellipsis"></i></button>
+        // 3. MAIN APP
+        function App() {
+            const [activeMenu, setActiveMenu] = React.useState('โปรเจกต์');
+            const [unitPrice, setUnitPrice] = React.useState('');
+            const [quantity, setQuantity] = React.useState('');
+
+            const renderContent = () => {
+                if (activeMenu === 'โปรเจกต์') {
+                    return (
+                        <div className="flex gap-6 h-full min-w-max pb-2">
+                            {INITIAL_DATA.map(col => (
+                                <div key={col.id} className="w-[300px] flex flex-col h-full">
+                                    <div className="flex justify-between mb-4 px-1">
+                                        <h2 className="font-bold text-slate-700">{col.title} <span className="text-slate-400 text-sm">({col.count})</span></h2>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                                        {col.tasks.map(t => <ProjectCard key={t.id} task={t} />)}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    );
+                }
+                if (activeMenu === 'คำนวณราคา') {
+                    const total = (Number(unitPrice) || 0) * (Number(quantity) || 0);
+                    return (
+                        <div className="flex items-center justify-center h-full pb-10">
+                            <div className="bg-white p-8 rounded-[32px] shadow-soft w-full max-w-md animate-fade-in-up">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="p-3 rounded-2xl bg-primary/10 text-primary"><Icon name="Calculator" size={28} /></div>
+                                    <div><h2 className="text-xl font-bold text-slate-800">คำนวณราคา</h2></div>
+                                </div>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-400 uppercase">ราคาต่อหน่วย</label>
+                                        <input type="number" value={unitPrice} onChange={e => setUnitPrice(e.target.value)} className="w-full mt-1 p-3 rounded-xl bg-slate-50 border-none font-bold text-lg focus:ring-2 ring-primary/20" placeholder="0.00" />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-400 uppercase">จำนวน</label>
+                                        <input type="number" value={quantity} onChange={e => setQuantity(e.target.value)} className="w-full mt-1 p-3 rounded-xl bg-slate-50 border-none font-bold text-lg focus:ring-2 ring-primary/20" placeholder="0" />
+                                    </div>
+                                    <div className="pt-4 border-t border-dashed">
+                                        <div className="flex justify-between items-end bg-slate-50 p-4 rounded-xl">
+                                            <span className="text-slate-400 text-sm">รวมสุทธิ</span>
+                                            <span className="text-3xl font-bold text-primary">฿{total.toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+                return (
+                    <div className="flex flex-col items-center justify-center h-full text-slate-300">
+                        <Icon name="LayoutGrid" size={48} className="mb-4 opacity-50" />
+                        <h2 className="text-2xl font-bold">หน้า {activeMenu}</h2>
+                        <p>กำลังอยู่ระหว่างการพัฒนา</p>
                     </div>
+                );
+            };
 
-                    <div class="card group">
-                        <div class="h-32 rounded-2xl bg-indigo-900 mb-4 overflow-hidden relative">
-                            <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500">
-                            <div class="absolute top-3 right-3 w-8 h-8 bg-white/20 backdrop-blur rounded-lg flex items-center justify-center text-white"><i class="fa-regular fa-image"></i></div>
-                        </div>
-                        <div class="flex justify-between mb-2">
-                            <h4 class="font-bold text-xl text-gray-800">Slack Rebrand</h4>
-                            <i class="fa-solid fa-ellipsis text-gray-300"></i>
-                        </div>
-                        <p class="text-gray-400 text-xs mb-4">โครงการนี้ต้องการอัตลักษณ์แบรนด์ใหม่...</p>
-                        <div class="flex gap-2 mb-4">
-                            <span class="tag bg-slate-100 text-slate-600">แอป IOS</span>
-                            <span class="tag bg-slate-100 text-slate-600">แอนดรอยด์</span>
-                        </div>
-                        <div class="flex justify-between items-center border-t border-gray-100 pt-3">
-                            <div class="flex gap-3 text-gray-400 text-xs">
-                                <span><i class="fa-solid fa-paperclip mr-1"></i> 3</span>
-                                <span><i class="fa-regular fa-message mr-1"></i> 2</span>
+            return (
+                <div className="w-full h-full bg-[#F3F4F6] sm:rounded-[32px] shadow-2xl overflow-hidden flex">
+                    <Sidebar activeItem={activeMenu} onNavigate={setActiveMenu} />
+                    <main className="flex-1 flex flex-col bg-[#F3F4F6] relative">
+                        <header className="h-16 px-6 flex items-center justify-between bg-[#F3F4F6]">
+                            <div className="relative">
+                                <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                <input type="text" placeholder="ค้นหา..." className="pl-9 pr-4 py-2 bg-white rounded-xl text-sm w-64 focus:outline-none shadow-sm" />
                             </div>
-                            <div class="flex -space-x-2">
-                                <img src="https://i.pravatar.cc/150?u=1" class="w-6 h-6 rounded-full border border-white">
-                                <img src="https://i.pravatar.cc/150?u=2" class="w-6 h-6 rounded-full border border-white">
-                                <div class="w-6 h-6 rounded-full bg-slate-100 border border-white flex items-center justify-center text-[10px] text-gray-500">+</div>
+                            <div className="flex items-center gap-4">
+                                <div className="w-9 h-9 rounded-full bg-white border border-slate-100 p-0.5"><img src="https://i.pravatar.cc/150?u=admin" className="w-full h-full rounded-full" /></div>
                             </div>
+                        </header>
+                        <div className="flex-1 overflow-x-auto p-6 pt-0">
+                            {renderContent()}
                         </div>
-                    </div>
-
-                    <div class="card">
-                         <div class="flex justify-between mb-2">
-                            <h4 class="font-bold text-xl text-gray-800">Google UX</h4>
-                            <i class="fa-solid fa-ellipsis text-gray-300"></i>
-                        </div>
-                        <p class="text-gray-400 text-xs mb-4">วิจัยพฤติกรรมผู้ใช้งานใหม่...</p>
-                        <div class="flex gap-2 mb-4">
-                            <span class="tag bg-orange-100 text-orange-600">แบรนด์ดิ้ง</span>
-                        </div>
-                        <div class="flex justify-between items-center border-t border-gray-100 pt-3">
-                             <div class="flex gap-3 text-gray-400 text-xs">
-                                <span><i class="fa-solid fa-paperclip mr-1"></i> 1</span>
-                                <span><i class="fa-regular fa-message mr-1"></i> 5</span>
-                            </div>
-                            <div class="flex -space-x-2">
-                                <img src="https://i.pravatar.cc/150?u=3" class="w-6 h-6 rounded-full border border-white">
-                            </div>
-                        </div>
-                    </div>
-
+                    </main>
                 </div>
+            );
+        }
 
-                <div class="flex flex-col">
-                    <div class="flex justify-between items-center mb-6 px-2">
-                        <h3 class="font-bold text-gray-800 text-lg">ดำเนินการอยู่ <span class="text-gray-400 text-sm ml-2">(02)</span></h3>
-                        <button class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-ellipsis"></i></button>
-                    </div>
-
-                    <div class="card">
-                        <div class="flex justify-between mb-2">
-                            <h4 class="font-bold text-xl text-gray-800">Twitter</h4>
-                            <i class="fa-solid fa-ellipsis text-gray-300"></i>
-                        </div>
-                        <p class="text-gray-400 text-xs mb-4">ออกแบบ UI หน้า Feed ใหม่...</p>
-                        <div class="flex gap-2 mb-4">
-                            <span class="tag bg-blue-50 text-blue-500">เว็บไซต์</span>
-                        </div>
-                        <div class="flex justify-between items-center border-t border-gray-100 pt-3">
-                             <div class="flex gap-3 text-gray-400 text-xs">
-                                <span><i class="fa-solid fa-paperclip mr-1"></i> 2</span>
-                                <span><i class="fa-regular fa-message mr-1"></i> 8</span>
-                            </div>
-                            <div class="flex -space-x-2">
-                                <img src="https://i.pravatar.cc/150?u=4" class="w-6 h-6 rounded-full border border-white">
-                                <img src="https://i.pravatar.cc/150?u=5" class="w-6 h-6 rounded-full border border-white">
-                            </div>
-                        </div>
-                    </div>
-
-                     <div class="card">
-                        <div class="flex justify-between mb-2">
-                            <h4 class="font-bold text-xl text-gray-800">Samsung IOT</h4>
-                            <i class="fa-solid fa-ellipsis text-gray-300"></i>
-                        </div>
-                        <div class="flex gap-2 mb-4">
-                            <span class="tag bg-purple-50 text-purple-600">IOT</span>
-                            <span class="tag bg-gray-100 text-gray-600">AR</span>
-                        </div>
-                         <div class="flex justify-between items-center border-t border-gray-100 pt-3">
-                             <div class="flex gap-3 text-gray-400 text-xs">
-                                <span><i class="fa-solid fa-paperclip mr-1"></i> 0</span>
-                                <span><i class="fa-regular fa-message mr-1"></i> 1</span>
-                            </div>
-                             <div class="flex -space-x-2">
-                                <img src="https://i.pravatar.cc/150?u=6" class="w-6 h-6 rounded-full border border-white">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex flex-col">
-                    <div class="flex justify-between items-center mb-6 px-2">
-                        <h3 class="font-bold text-gray-800 text-lg">เสร็จสิ้น <span class="text-gray-400 text-sm ml-2">(01)</span></h3>
-                        <button class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-ellipsis"></i></button>
-                    </div>
-
-                    <div class="card">
-                        <div class="flex justify-between mb-2">
-                            <h4 class="font-bold text-xl text-gray-800">Tesla Auto</h4>
-                            <i class="fa-solid fa-ellipsis text-gray-300"></i>
-                        </div>
-                        <p class="text-gray-400 text-xs mb-4">พัฒนาระบบนำทาง...</p>
-                        <div class="flex gap-2 mb-4">
-                            <span class="tag bg-green-50 text-green-600">เสร็จสมบูรณ์</span>
-                        </div>
-                         <div class="flex justify-between items-center border-t border-gray-100 pt-3">
-                             <div class="flex gap-3 text-gray-400 text-xs">
-                                <span><i class="fa-solid fa-paperclip mr-1"></i> 5</span>
-                            </div>
-                             <div class="flex -space-x-2">
-                                <img src="https://i.pravatar.cc/150?u=7" class="w-6 h-6 rounded-full border border-white">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <button onclick="alert('ฟีเจอร์เพิ่มงานจะอยู่ที่นี่')" class="fixed bottom-10 right-10 w-16 h-16 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[20px] shadow-xl shadow-indigo-300 flex items-center justify-center transition-transform hover:scale-110 active:scale-95">
-            <i class="fa-solid fa-plus text-2xl"></i>
-        </button>
-
-    </main>
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>
