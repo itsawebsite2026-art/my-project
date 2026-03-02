@@ -1,0 +1,10 @@
+# สิทธิ์การเข้าถึงและความลับ (ห้ามนำขึ้น GitHub)
+.clasp.json
+creds.json
+
+# โฟลเดอร์ที่เกิดจากการติดตั้ง Library
+node_modules/
+
+# ไฟล์ระบบและ Log
+.DS_Store
+*.log

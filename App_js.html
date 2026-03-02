@@ -1,0 +1,205 @@
+<script type="text/babel">
+  function App() {
+    const [columns] = React.useState(INITIAL_DATA);
+    const [viewMode, setViewMode] = React.useState('grid');
+    const [activeMenu, setActiveMenu] = React.useState('โปรเจกต์');
+    const [showNotifications, setShowNotifications] = React.useState(false);
+
+    // Calculator State
+    const [unitPrice, setUnitPrice] = React.useState('');
+    const [quantity, setQuantity] = React.useState('');
+
+    // Report State
+    const [reports, setReports] = React.useState([
+      { id: 1, jobNo: 'JOB-2023-884', problem: 'เครื่องจักรหยุดทำงาน', solution: 'เปลี่ยนฟิวส์แล้ว', image: null, date: '22 ต.ค. 2024' }
+    ]);
+    const [reportForm, setReportForm] = React.useState({ jobNo: '', problem: '', solution: '' });
+    const [selectedImage, setSelectedImage] = React.useState(null);
+    const fileInputRef = React.useRef(null);
+
+    // Notification Mock
+    const notifications = [
+      { id: 1, text: "ความคิดเห็นใหม่", time: "5 นาทีก่อน", read: false, icon: 'MessageSquare', color: "text-blue-500 bg-blue-50" },
+      { id: 2, text: "งานเสร็จสิ้น", time: "2 ชั่วโมงก่อน", read: false, icon: 'CheckSquare', color: "text-green-500 bg-green-50" }
+    ];
+
+    const handleImageUpload = (event) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => setSelectedImage(reader.result);
+        reader.readAsDataURL(file);
+      }
+    };
+
+    const handleSaveReport = () => {
+      if (!reportForm.jobNo || !reportForm.problem) { alert('กรุณากรอกข้อมูลให้ครบ'); return; }
+      const newReport = { id: Date.now(), ...reportForm, image: selectedImage, date: new Date().toLocaleDateString('th-TH') };
+      setReports([newReport, ...reports]);
+      setReportForm({ jobNo: '', problem: '', solution: '' });
+      setSelectedImage(null);
+    };
+
+    const handleDeleteReport = (id) => setReports(reports.filter(r => r.id !== id));
+    const handleDownloadPDF = (report) => alert(`ดาวน์โหลด PDF: ${report.jobNo}`);
+
+    const renderContent = () => {
+      if (activeMenu === 'แดชบอร์ด') {
+        return (
+          <div className="flex flex-col gap-8 h-full overflow-y-auto custom-scrollbar pr-4 pb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { label: 'โปรเจกต์', value: '12', icon: 'Briefcase', change: '+2.5%' },
+                { label: 'กำลังทำ', value: '4', icon: 'Clock', change: '+1.2%' },
+                { label: 'เสร็จสิ้น', value: '8', icon: 'CheckCircle', change: '+5%' },
+                { label: 'ประสิทธิภาพ', value: '92%', icon: 'TrendingUp', change: '+10%' }
+              ].map((stat, i) => (
+                <div key={i} className="bg-white p-6 rounded-2xl shadow-soft">
+                  <div className="flex justify-between mb-4">
+                    <div className="p-3 rounded-2xl bg-slate-50 text-slate-500"><Icon name={stat.icon} size={22} /></div>
+                    <span className="text-[10px] font-bold text-green-500 bg-green-50 px-2 py-1 rounded-full">{stat.change}</span>
+                  </div>
+                  <h3 className="text-3xl font-bold text-slate-800">{stat.value}</h3>
+                  <p className="text-slate-400 text-xs font-medium uppercase">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+            {/* Chart Placeholder */}
+            <div className="bg-white p-8 rounded-2xl shadow-soft h-64 flex items-center justify-center text-slate-400">
+              <p>พื้นที่กราฟ (กำลังพัฒนา)</p>
+            </div>
+          </div>
+        );
+      }
+
+      if (activeMenu === 'โปรเจกต์') {
+        return (
+          <div className="flex gap-8 h-full min-w-max pb-4">
+            {columns.map((column, colIndex) => (
+              <div key={column.id} className="w-[340px] flex flex-col h-full">
+                <div className="flex items-center justify-between mb-6 pr-2">
+                  <div className="flex items-center gap-2">
+                    <h2 className="font-bold text-slate-800">{column.title}</h2>
+                    <span className="text-slate-400 text-sm font-medium">({String(column.count).padStart(2, '0')})</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button className="text-slate-300 hover:text-slate-500"><Icon name="MoreHorizontal" size={20} /></button>
+                    {colIndex === 0 && (
+                      <div className="flex bg-white rounded-lg p-1 shadow-sm ml-2">
+                        <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-md ${viewMode === 'list' ? 'bg-primary text-white' : 'text-slate-400'}`}><Icon name="List" size={14} /></button>
+                        <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md ${viewMode === 'grid' ? 'bg-primary text-white' : 'text-slate-400'}`}><Icon name="LayoutGrid" size={14} /></button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex-1 overflow-y-auto pr-2 pb-2 custom-scrollbar">
+                  {column.tasks.map((task) => <ProjectCard key={task.id} task={task} />)}
+                  <div className="h-8"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      }
+
+      if (activeMenu === 'คำนวณราคา') {
+        const total = (Number(unitPrice) || 0) * (Number(quantity) || 0);
+        return (
+          <div className="flex items-center justify-center h-full pb-10">
+            <div className="bg-white p-8 rounded-[32px] shadow-soft w-full max-w-lg animate-fade-in-up">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="p-4 rounded-2xl bg-primary/10 text-primary shadow-sm"><Icon name="Calculator" size={32} /></div>
+                <div><h2 className="text-2xl font-bold text-slate-800">คำนวณราคา</h2><p className="text-slate-400 text-sm">ประเมินค่าใช้จ่าย</p></div>
+              </div>
+              <div className="space-y-6">
+                <div className="relative">
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">ราคาต่อหน่วย</label>
+                  <div className="relative">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><Icon name="DollarSign" size={18} /></div>
+                    <input type="number" value={unitPrice} onChange={(e) => setUnitPrice(e.target.value)} className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 border border-slate-100 font-bold text-slate-700 text-lg shadow-inner placeholder-slate-300" placeholder="0.00" />
+                  </div>
+                </div>
+                <div className="relative">
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">จำนวน</label>
+                  <div className="relative">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><Icon name="Package" size={18} /></div>
+                    <input type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 border border-slate-100 font-bold text-slate-700 text-lg shadow-inner placeholder-slate-300" placeholder="0" />
+                  </div>
+                </div>
+                <div className="pt-6 mt-6 border-t border-dashed border-slate-200">
+                  <div className="flex justify-between items-end bg-[#F8FAFC] p-6 rounded-2xl border border-slate-100">
+                    <span className="text-slate-400 font-medium text-sm">ราคารวม</span>
+                    <span className="text-4xl font-extrabold text-primary tracking-tight">฿{total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      if (activeMenu === 'calculate-material' || activeMenu === 'Calculate Material') {
+        try {
+          const MatCalc = window.MaterialCalculator || MaterialCalculator;
+          return <MatCalc />;
+        } catch (e) {
+          console.error("Error rendering MaterialCalculator:", e);
+          return <div className="p-10 text-red-500">Error: {e.message}</div>;
+        }
+      }
+
+      // Default Placeholder
+      return (
+        <div className="flex flex-col items-center justify-center h-full text-slate-400 opacity-60">
+          <div className="w-24 h-24 rounded-full bg-slate-200/50 flex items-center justify-center mb-6 shadow-sm"><Icon name="LayoutGrid" size={40} /></div>
+          <h2 className="text-3xl font-bold text-slate-300 mb-3">{activeMenu}</h2>
+          <p className="text-slate-400">อยู่ระหว่างการพัฒนา</p>
+        </div>
+      );
+    };
+
+    return (
+      <div className="w-full h-full bg-[#F3F4F6] sm:rounded-[40px] shadow-2xl overflow-hidden flex" onClick={() => showNotifications && setShowNotifications(false)}>
+        <Sidebar activeItem={activeMenu} onNavigate={setActiveMenu} />
+        <main className="flex-1 flex flex-col bg-[#F3F4F6] relative">
+          <header className="h-20 px-8 flex items-center justify-between bg-[#F3F4F6]">
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><Icon name="Search" size={18} /></div>
+              <input type="text" placeholder="ค้นหา" className="pl-12 pr-4 py-2.5 bg-white rounded-2xl text-sm w-80 text-slate-700 placeholder-slate-400 focus:outline-none shadow-sm transition-all" />
+            </div>
+            <div className="flex items-center gap-6">
+              <div className="relative">
+                <button onClick={(e) => { e.stopPropagation(); setShowNotifications(!showNotifications); }} className="relative p-2 rounded-xl text-slate-400 hover:text-slate-600">
+                  <Icon name="Bell" size={20} />
+                  <span className="absolute top-1.5 right-2 w-2 h-2 bg-red-400 rounded-full border-2 border-[#F3F4F6]"></span>
+                </button>
+                {showNotifications && (
+                  <div onClick={(e) => e.stopPropagation()} className="absolute right-0 top-14 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden animate-fade-in-up">
+                    <div className="p-4 border-b border-slate-50"><h3 className="font-bold text-slate-800 text-sm">การแจ้งเตือน</h3></div>
+                    <div className="max-h-[300px] overflow-y-auto">
+                      {notifications.map(n => (
+                        <div key={n.id} className="p-4 hover:bg-slate-50 border-b border-slate-50 flex gap-4 cursor-pointer">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${n.color}`}><Icon name={n.icon} size={18} /></div>
+                          <div className="flex-1"><p className="text-sm font-bold text-slate-800">{n.text}</p><p className="text-xs text-slate-400">{n.time}</p></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 text-slate-500 shadow-sm"><Icon name="Users" size={20} /></div>
+            </div>
+          </header>
+          <div className="flex-1 overflow-x-auto overflow-y-hidden p-8 pt-2">
+            {activeMenu === 'โปรเจกต์' && (
+              <div className="absolute top-28 right-8 z-10">
+                <button className="w-10 h-10 bg-primary rounded-xl shadow-glow text-white flex items-center justify-center hover:scale-105 transition-transform"><Icon name="Plus" size={24} /></button>
+              </div>
+            )}
+            {renderContent()}
+          </div>
+        </main>
+      </div>
+    );
+  }
+</script>

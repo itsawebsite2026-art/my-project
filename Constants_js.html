@@ -1,0 +1,76 @@
+<script type="text/babel">
+  // ข้อมูลจำลอง (Mock Data)
+  const MOCK_USERS = [
+    { id: '1', name: 'Alice' },
+    { id: '2', name: 'Bob' },
+    { id: '3', name: 'Charlie' },
+    { id: '4', name: 'David' },
+  ];
+
+  const INITIAL_DATA = [
+    {
+      id: 'working',
+      title: 'กำลังทำ',
+      count: 2,
+      tasks: [
+        {
+          id: 't1',
+          title: 'Slack',
+          description: 'โครงการนี้ต้องการอัตลักษณ์แบรนด์ใหม่',
+          tags: ['แอป iOS', 'แอนดรอยด์'],
+          attachmentsCount: 3,
+          commentsCount: 2,
+          members: [MOCK_USERS[0], MOCK_USERS[1], MOCK_USERS[2]],
+          imageUrl: 'https://picsum.photos/400/200',
+          status: 'Working',
+        },
+        {
+          id: 't2',
+          title: 'Google',
+          description: 'วิจัย UX/UI ใหม่',
+          tags: ['แบรนด์ดิ้ง'],
+          attachmentsCount: 3,
+          commentsCount: 5,
+          members: [MOCK_USERS[2], MOCK_USERS[3]],
+          status: 'Working',
+        },
+      ],
+    },
+    {
+      id: 'progress',
+      title: 'ดำเนินการอยู่',
+      count: 3,
+      tasks: [
+        {
+          id: 't3',
+          title: 'Twitter',
+          description: 'ออกแบบหน้า Feed ใหม่',
+          tags: ['เว็บไซต์'],
+          attachmentsCount: 3,
+          commentsCount: 2,
+          members: [MOCK_USERS[1], MOCK_USERS[0]],
+          status: 'In Progress',
+        },
+        { id: 't4', title: 'ยาง Maxxis', description: 'ระบบจัดการสต็อก', tags: ['WebApp'], attachmentsCount: 1, commentsCount: 0, members: [MOCK_USERS[3]], status: 'In Progress' },
+        { id: 't5', title: 'Samsung', description: 'IOT Dashboard', tags: ['IOT', 'AR'], attachmentsCount: 5, commentsCount: 8, members: [MOCK_USERS[0]], status: 'In Progress' }
+      ],
+    },
+    {
+      id: 'completed',
+      title: 'เสร็จสิ้น',
+      count: 1,
+      tasks: [
+        {
+          id: 't6',
+          title: 'Tesla',
+          description: 'ระบบนำทาง GPS',
+          tags: ['AI'],
+          attachmentsCount: 10,
+          commentsCount: 12,
+          members: [MOCK_USERS[1]],
+          status: 'Completed',
+        },
+      ],
+    },
+  ];
+</script>

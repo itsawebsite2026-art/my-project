@@ -1,0 +1,372 @@
+<script type="text/babel">
+  // --- แปลง Lucide Icons ให้ React ใช้ได้ ---
+  const {
+    Search, Bell, Plus, LayoutGrid, List, MoreHorizontal, Briefcase,
+    Clock, CheckCircle, TrendingUp, Calendar, ArrowUpRight, MessageSquare,
+    UserPlus, CheckSquare, Calculator, DollarSign, Package,
+    FileText, Upload, Save, Trash2, Download, PieChart, Image: ImageIcon, X,
+    Layers, Settings, ListTodo, Paperclip, Minus, Folder, LogOut, Printer, ListChecks, PackageOpen, Loader2, Users
+  } = lucide.icons;
+
+  // ฟังก์ชันสร้าง Icon Component
+  const Icon = ({ name, ...props }) => {
+    try {
+      if (!lucide.icons[name]) return null;
+      const IconComponent = lucide.icons[name];
+
+      // สร้าง element svg ด้วย React
+      return React.createElement('svg', {
+        ...props,
+        width: props.size || 24,
+        height: props.size || 24,
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: props.strokeWidth || 2,
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        viewBox: "0 0 24 24",
+        dangerouslySetInnerHTML: { __html: IconComponent[2].map(c => `<${c[0]} ${Object.entries(c[1]).map(([k, v]) => `${k}="${v}"`).join(' ')} />`).join('') }
+      });
+    } catch (e) {
+      console.error("Icon render error:", e);
+      return null;
+    }
+  };
+
+  // --- Sidebar Component (Updated Requirement: Threads -> Product, Quotation inside Product) ---
+  const Sidebar = ({ activeItem, onNavigate, tasksCount = 0 }) => {
+    const [expandedItems, setExpandedItems] = React.useState(['Product']);
+
+    // Notification logic
+    const [lastSeenCount, setLastSeenCount] = React.useState(() => {
+      return parseInt(localStorage.getItem('tasks_last_seen') || '0', 10);
+    });
+
+    const unreadCount = Math.max(0, tasksCount - lastSeenCount);
+
+    const handleTasksClick = () => {
+      localStorage.setItem('tasks_last_seen', tasksCount.toString());
+      setLastSeenCount(tasksCount);
+      onNavigate('Tasks');
+    };
+
+    // Essentials Menu
+    const essentials = [
+      { icon: 'LayoutGrid', label: 'Home', value: 'โปรเจกต์' },
+      { icon: 'CheckSquare', label: 'Tasks', value: 'Tasks', badge: unreadCount },
+      // Quotation MOVED from top level to inside Product
+      {
+        icon: 'Layers',
+        label: 'Product', // Renamed from 'Threads'
+        value: 'Product',
+        subItems: [
+          { label: 'คำนวณราคา (Calculate Price)', value: 'คำนวณราคา', icon: 'Calculator' },
+          { label: 'คำนวณวัสดุ (Calculate Material)', value: 'sub2', icon: 'Calculator' },
+          { label: 'รหัสวัสดุ (Code Material)', value: 'sub3', icon: 'Database' }
+        ]
+      },
+      { icon: 'Calendar', label: 'Calendar', value: 'Calendar' },
+      { icon: 'Users', label: 'Teams', value: 'Teams' },
+    ];
+
+    // Projects Menu (Mock Data)
+    const projects = [
+      { color: 'bg-emerald-500', label: 'Atlas CRM Revamp', value: 'p1' },
+      { color: 'bg-orange-500', label: 'Nimbus Dashboard', value: 'p2' },
+      { color: 'bg-blue-500', label: 'Orion API Gateway', value: 'p3' },
+      { color: 'bg-red-500', label: 'Helio Task System', value: 'p4' },
+    ];
+
+    return (
+      <div className="w-64 h-full flex flex-col bg-white border-r border-slate-200 z-50">
+
+        {/* 0. Logo */}
+        <div className="p-6 pb-2 flex items-center justify-center">
+          <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-glow cursor-pointer hover:scale-105 transition-transform">
+            WS
+          </div>
+        </div>
+
+        {/* 1. Search Bar */}
+        <div className="px-6 py-2">
+          <div className="relative">
+            <Icon name="Search" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input
+              type="text"
+              placeholder="Search"
+              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 border border-slate-300 rounded px-1.5 py-0.5 text-[10px] text-slate-400 font-medium">⌘F</div>
+          </div>
+        </div>
+
+        {/* 2. Essentials Menu */}
+        <div className="px-4 py-4">
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-2">Essentials</h3>
+          <nav className="space-y-1">
+            {essentials.map((item) => {
+              // Check if this item is active or one of its children is active
+              const isParentActive = activeItem === item.value || (item.subItems && item.subItems.some(sub => sub.value === activeItem));
+              const isExpanded = expandedItems.includes(item.value);
+
+              const handleItemClick = () => {
+                if (item.subItems) {
+                  setExpandedItems(prev =>
+                    prev.includes(item.value)
+                      ? prev.filter(v => v !== item.value)
+                      : [...prev, item.value]
+                  );
+                } else {
+                  if (item.value === 'Tasks') {
+                    handleTasksClick();
+                  } else {
+                    onNavigate(item.value);
+                  }
+                }
+              };
+
+              return (
+                <div key={item.label}>
+                  <div
+                    onClick={handleItemClick}
+                    className={`
+                                        flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200 group
+                                        ${isExpanded
+                        ? 'bg-[#1B2559] text-white'
+                        : (activeItem === item.value ? 'bg-slate-50 text-slate-900 font-semibold' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700')
+                      }
+                                    `}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon name={item.icon} size={20} className={isExpanded ? 'text-white' : (activeItem === item.value ? 'text-primary' : 'text-slate-400 group-hover:text-slate-600')} />
+                      <span>{item.label}</span>
+                    </div>
+                    {item.subItems ? (
+                      <Icon name={isExpanded ? "Minus" : "Plus"} size={16} className={isExpanded ? "text-slate-400" : "text-slate-400"} />
+                    ) : (
+                      item.badge > 0 && (
+                        <span className="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-md font-medium border border-slate-200">
+                          {item.badge}
+                        </span>
+                      )
+                    )}
+                  </div>
+
+                  {/* Sub-menu */}
+                  {item.subItems && isExpanded && (
+                    <div className="pl-4 mt-2 relative">
+                      {/* Vertical Line */}
+                      <div className="absolute left-[21px] top-0 bottom-2 w-[1px] bg-slate-200"></div>
+
+                      <div className="space-y-1 pl-4">
+                        {item.subItems.map((sub) => {
+                          const isSubActive = activeItem === sub.value;
+                          return (
+                            <div
+                              key={sub.value}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onNavigate(sub.value);
+                              }}
+                              className={`
+                                                            flex items-center gap-3 px-3 py-2 rounded-full cursor-pointer transition-all text-sm relative z-10
+                                                            ${isSubActive ? 'bg-white shadow-sm ring-1 ring-slate-100 text-slate-900 font-medium' : 'text-slate-500 hover:text-slate-800'}
+                                                        `}
+                            >
+                              <Icon name={sub.icon} size={16} className={isSubActive ? 'text-slate-900' : 'text-slate-400'} />
+                              <span>{sub.label}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </nav>
+        </div>
+
+
+        {/* 4. User Profile (Bottom) */}
+        <div className="mt-auto p-4 border-t border-slate-100">
+          <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors group">
+            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 text-slate-500">
+              <Icon name="Users" size={20} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-bold text-slate-900 truncate">Esther Howard</div>
+              <div className="text-xs text-slate-400 truncate">GRAPHIC DESIGNER</div>
+            </div>
+            <Icon name="LogOut" size={18} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
+          </div>
+        </div>
+
+      </div>
+    );
+  };
+
+  // --- ProjectCard Component ---
+  const ProjectCard = ({ task }) => (
+    <div className="bg-white p-4 rounded-2xl shadow-soft hover:shadow-md transition-all cursor-pointer mb-4 border border-slate-50">
+      {task.imageUrl && (
+        <div className="mb-3 rounded-xl overflow-hidden h-28 w-full relative group">
+          <img src={task.imageUrl} className="w-full h-full object-cover" />
+        </div>
+      )}
+      <div className="flex justify-between items-start mb-1">
+        <h3 className="font-bold text-slate-800">{task.title}</h3>
+        <Icon name="MoreHorizontal" size={18} className="text-slate-300" />
+      </div>
+      <p className="text-slate-500 text-xs mb-3 line-clamp-2">{task.description}</p>
+      <div className="flex items-center justify-between pt-2 border-t border-slate-50">
+        <div className="flex gap-2 text-slate-400 text-xs">
+          <span className="flex items-center gap-1"><Icon name="Paperclip" size={12} /> {task.attachmentsCount}</span>
+        </div>
+        <div className="flex -space-x-2">
+          {task.members.map((m, i) => (
+            <div key={i} className="w-5 h-5 rounded-full border border-white bg-slate-100 flex items-center justify-center text-[8px] font-bold text-slate-500">
+              {m.name ? m.name.charAt(0).toUpperCase() : '?'}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // --- Code Material View Component ---
+  const CodeMaterialView = () => {
+    const [materials, setMaterials] = React.useState([]);
+    const [loading, setLoading] = React.useState(true);
+    const [searchQuery, setSearchQuery] = React.useState('');
+
+    // ดึงข้อมูลเมื่อเปิดหน้า
+    React.useEffect(() => {
+      setLoading(true);
+      if (window.google && window.google.script) {
+        window.google.script.run
+          .withSuccessHandler(data => {
+            if (Array.isArray(data)) {
+              setMaterials(data);
+            } else {
+              console.error("Data error:", data);
+            }
+            setLoading(false);
+          })
+          .withFailureHandler(err => {
+            console.error("Error:", err);
+            setLoading(false);
+          })
+          .getCodeMaterialData();
+      } else {
+        // Mock Data สำหรับทดสอบ (จำลองตามไฟล์ของคุณ)
+        setMaterials([
+          { code: '02-01-PWS-0001', group: 'วัตถุดิบ', category: 'PWS', name: 'Adapter 150W/12V GM152-1201250-D-150W', unit: 'Pcs.', price: 685 },
+          { code: '02-01-LED-0002', group: 'วัตถุดิบ', category: 'LED', name: 'LED Neon Flex ริบบิ้น2835s 12V/7.2W', unit: 'เมตร', price: 45.6 }
+        ]);
+        setLoading(false);
+      }
+    }, []);
+
+    // ฟังก์ชันกรองข้อมูล
+    const filteredMaterials = React.useMemo(() => {
+      return materials.filter(item => {
+        const query = searchQuery.toLowerCase();
+        return (
+          (item.code && item.code.toString().toLowerCase().includes(query)) ||
+          (item.name && item.name.toString().toLowerCase().includes(query)) ||
+          (item.category && item.category.toString().toLowerCase().includes(query))
+        );
+      });
+    }, [materials, searchQuery]);
+
+    return (
+      <div className="h-full flex flex-col p-6 animate-fade-in-up">
+        {/* Header */}
+        <div className="flex justify-between items-end mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+              <Icon name="Database" className="text-primary" />
+              Code Material
+            </h2>
+            <p className="text-slate-500 text-sm mt-1">ฐานข้อมูลรหัสวัสดุและราคา</p>
+          </div>
+          <div className="text-right">
+            <div className="text-3xl font-bold text-slate-800">{materials.length}</div>
+            <div className="text-xs text-slate-400 uppercase font-bold">Total Items</div>
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-4 flex gap-4 items-center">
+          <div className="relative flex-1">
+            <Icon name="Search" className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+            <input
+              type="text"
+              placeholder="ค้นหาด้วย รหัส, หมวดหมู่, หรือชื่อวัสดุ..."
+              className="w-full pl-12 pr-4 py-3 bg-slate-50 border-transparent focus:bg-white focus:border-primary/30 rounded-xl transition-all outline-none border"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Table Area */}
+        <div className="bg-white rounded-2xl shadow-soft flex-1 overflow-hidden flex flex-col border border-slate-100 relative">
+
+          {/* Loading State */}
+          {loading && (
+            <div className="absolute inset-0 bg-white/80 z-20 flex flex-col items-center justify-center text-slate-400">
+              <div className="animate-spin mb-2"><Icon name="Loader2" size={32} /></div>
+              <p>กำลังดึงข้อมูลจากสเปรดชีต...</p>
+            </div>
+          )}
+
+          <div className="flex-1 overflow-auto custom-scrollbar">
+            <table className="w-full text-left border-collapse min-w-[1000px]">
+              <thead className="bg-[#F8FAFC] sticky top-0 z-10 shadow-sm text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <tr>
+                  <th className="p-4 w-40 border-b border-slate-200">รหัส (Code)</th>
+                  <th className="p-4 w-28 border-b border-slate-200">กลุ่ม</th>
+                  <th className="p-4 w-24 border-b border-slate-200">หมวด</th>
+                  <th className="p-4 border-b border-slate-200">ชื่อรายการ (Name)</th>
+                  <th className="p-4 w-24 text-center border-b border-slate-200">หน่วย</th>
+                  <th className="p-4 w-32 text-right border-b border-slate-200">ราคา/บาท</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredMaterials.map((item, idx) => (
+                  <tr key={idx} className={`hover:bg-slate-50 transition-colors ${item.group === 'ปิดใช้งาน' ? 'opacity-50 bg-slate-100' : ''}`}>
+                    <td className="p-4 text-sm font-bold text-primary whitespace-nowrap font-mono">
+                      {item.code}
+                    </td>
+                    <td className="p-4 text-sm text-slate-600 whitespace-nowrap">
+                      <span className={`px-2 py-1 rounded-md text-xs font-medium border ${item.group === 'วัตถุดิบ' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                        item.group === 'วัสดุสิ้นเปลือง' ? 'bg-orange-50 text-orange-600 border-orange-100' :
+                          'bg-slate-100 text-slate-500 border-slate-200'
+                        }`}>
+                        {item.group}
+                      </span>
+                    </td>
+                    <td className="p-4 text-sm text-slate-800 whitespace-nowrap font-bold">{item.category}</td>
+                    <td className="p-4 text-sm text-slate-700 leading-relaxed">{item.name}</td>
+                    <td className="p-4 text-sm text-slate-600 whitespace-nowrap text-center">{item.unit}</td>
+                    <td className="p-4 text-sm font-bold text-emerald-600 whitespace-nowrap text-right">
+                      {item.price > 0 ? Number(item.price).toLocaleString('th-TH', { minimumFractionDigits: 2 }) : '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Footer Status */}
+          <div className="p-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 flex justify-between px-6">
+            <span>แสดง {filteredMaterials.length} รายการ จากทั้งหมด {materials.length}</span>
+            <span>เชื่อมต่อกับชีต: Code Material (รหัส)</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+</script>
